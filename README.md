@@ -1,5 +1,7 @@
 # Auth & Audit 🔐
 
+![alt text goes here](https://github.com/mhndakbar/authtrail/actions/workflows/ci.yml/badge.svg)
+
 A modern web application for user authentication and activity trail tracking, built with Go backend and vanilla JavaScript frontend. This project was developed as a hands-on learning experience for **CI/CD practices** and modern web development workflows.
 
 ## 🎯 Purpose
