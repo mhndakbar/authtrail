@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth & Audit</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 800px;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            text-align: center;
+            color: #e8e8e8;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            font-weight: 300;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tabs {
+            display: flex;
+            background: rgba(42, 42, 74, 0.5);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 30px;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            color: #b8b8b8;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #4a9eff 0%, #2d5aa0 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(74, 158, 255, 0.3);
+        }
+
+        .tab:hover:not(.active) {
+            color: #e8e8e8;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .input-section {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .input-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #b8b8b8;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #2a2a4a;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(42, 42, 74, 0.8);
+            color: #e8e8e8;
+        }
+
+        input[type="text"]:focus, input[type="password"]:focus {
+            outline: none;
+            border-color: #4a9eff;
+            box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            min-width: 100px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4a9eff 0%, #2d5aa0 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(74, 158, 255, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #00d4aa 0%, #0099cc 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 212, 170, 0.3);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(108, 117, 125, 0.3);
+        }
+
+        .logs-section {
+            animation: fadeInUp 0.8s ease-out 0.6s both;
+        }
+
+        .logs-title {
+            color: #e8e8e8;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .logs-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(42, 42, 74, 0.8);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logs-table th {
+            background: linear-gradient(135deg, #4a9eff 0%, #2d5aa0 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .logs-table td {
+            padding: 15px;
+            border-bottom: 1px solid #2a2a4a;
+            transition: background-color 0.3s ease;
+            color: #e8e8e8;
+        }
+
+        .logs-table tr:hover td {
+            background-color: rgba(74, 158, 255, 0.1);
+        }
+
+        .logs-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .log-entry {
+            animation: slideInRight 0.5s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-signup { background-color: #00d4aa; }
+        .status-login { background-color: #4a9eff; }
+        .status-logout { background-color: #ff6b6b; }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 500;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, #00d4aa 0%, #0099cc 100%);
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        }
+
+        .user-info {
+            background: rgba(42, 42, 74, 0.8);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: none;
+        }
+
+        .user-info.show {
+            display: block;
+        }
+
+        .user-info h3 {
+            color: #e8e8e8;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .user-info p {
+            color: #b8b8b8;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .input-section {
+                flex-direction: column;
+            }
+            
+            .button-group {
+                justify-content: center;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Auth & Audit</h1>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('signup')">Sign Up</button>
+            <button class="tab" onclick="switchTab('login')">Log In</button>
+        </div>
+        
+        <div id="signup-tab" class="tab-content active">
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="signup-name">Enter your name</label>
+                    <input type="text" id="signup-name" placeholder="Enter your name here...">
+                </div>
+                <div class="input-group">
+                    <label for="signup-password">Enter your password</label>
+                    <input type="password" id="signup-password" placeholder="Enter your password...">
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="signUp()">Sign Up</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="login-tab" class="tab-content">
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="login-name">Enter your name</label>
+                    <input type="text" id="login-name" placeholder="Enter your name here...">
+                </div>
+                <div class="input-group">
+                    <label for="login-password">Enter your password</label>
+                    <input type="password" id="login-password" placeholder="Enter your password...">
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-success" onclick="logIn()">Log In</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="user-info" class="user-info">
+            <h3>Current User</h3>
+            <p><strong>Name:</strong> <span id="current-user-name"></span></p>
+            <p><strong>API Key:</strong> <span id="current-api-key"></span></p>
+            <button class="btn btn-warning" onclick="logOut()">Log Out</button>
+        </div>
+        
+        <div class="logs-section">
+            <h2 class="logs-title">Activity Logs</h2>
+            <table class="logs-table">
+                <thead>
+                    <tr>
+                        <th>Text</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody id="logsTableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script>
+        let currentUser = '';
+        let isLoggedIn = false;
+        let currentApiKey = '';
+        let currentUserId = '';
+
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabName + '-tab').classList.add('active');
+        }
+
+        function updateUserInfo() {
+            const userInfo = document.getElementById('user-info');
+            const userNameSpan = document.getElementById('current-user-name');
+            const apiKeySpan = document.getElementById('current-api-key');
+            
+            if (isLoggedIn) {
+                userNameSpan.textContent = currentUser;
+                apiKeySpan.textContent = currentApiKey.substring(0, 20) + '...';
+                userInfo.classList.add('show');
+            } else {
+                userInfo.classList.remove('show');
+            }
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type} show`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        async function makeApiRequest(url, method = 'GET', body = null, apiKey = null) {
+            const options = {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            };
+
+            if (apiKey) {
+                options.headers['Authorization'] = `Bearer ${apiKey}`;
+            }
+
+            if (body) {
+                options.body = JSON.stringify(body);
+            }
+
+            try {
+                const response = await fetch(url, options);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'API request failed');
+                }
+                
+                return data;
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        function addLogEntry(text, type) {
+            const tbody = document.getElementById('logsTableBody');
+            const row = document.createElement('tr');
+            row.className = 'log-entry';
+            
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('en-US', {
+                month: 'numeric',
+                day: 'numeric',
+                year: '2-digit'
+            }) + ', ' + now.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            });
+            
+            const statusClass = type === 'signup' ? 'status-signup' : 
+                              type === 'login' ? 'status-login' : 'status-logout';
+            
+            row.innerHTML = `
+                <td><span class="status-indicator ${statusClass}"></span>${text}</td>
+                <td>${dateStr}</td>
+            `;
+            
+            tbody.appendChild(row);
+            
+            // Animate the new row
+            setTimeout(() => {
+                row.style.animation = 'slideInRight 0.5s ease-out';
+            }, 100);
+        }
+
+        async function signUp() {
+            const username = document.getElementById('signup-name').value.trim();
+            const password = document.getElementById('signup-password').value.trim();
+            
+            if (!username) {
+                showNotification('Please enter a name', 'error');
+                return;
+            }
+            
+            if (!password) {
+                showNotification('Please enter a password', 'error');
+                return;
+            }
+            
+            try {
+                const userData = await makeApiRequest('/v1/user', 'POST', {
+                    name: username,
+                    password: password
+                });
+                
+                currentUser = username;
+                currentApiKey = userData.api_key;
+                currentUserId = userData.id;
+                isLoggedIn = true;
+                
+                addLogEntry(`User '${username}' signed up`, 'signup');
+                showNotification(`${username} successfully signed up!`);
+                
+                // Clear inputs
+                document.getElementById('signup-name').value = '';
+                document.getElementById('signup-password').value = '';
+                
+                // Update UI
+                updateUserInfo();
+                loadAuthTrails();
+                
+                // Switch to login tab
+                switchTab('login');
+                
+            } catch (error) {
+                showNotification(`Sign up failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function logIn() {
+            const username = document.getElementById('login-name').value.trim();
+            const password = document.getElementById('login-password').value.trim();
+            
+            if (!username) {
+                showNotification('Please enter a name', 'error');
+                return;
+            }
+            
+            if (!password) {
+                showNotification('Please enter a password', 'error');
+                return;
+            }
+            
+            try {
+                const userData = await makeApiRequest('/v1/user/login', 'POST', {
+                    name: username,
+                    password: password
+                });
+                
+                currentUser = username;
+                currentApiKey = userData.api_key;
+                currentUserId = userData.id;
+                isLoggedIn = true;
+                
+                addLogEntry(`User '${username}' logged in`, 'login');
+                showNotification(`${username} successfully logged in!`);
+                
+                // Clear inputs
+                document.getElementById('login-name').value = '';
+                document.getElementById('login-password').value = '';
+                
+                // Update UI
+                updateUserInfo();
+                loadAuthTrails();
+                
+            } catch (error) {
+                showNotification(`Login failed: ${error.message}`, 'error');
+            }
+        }
+
+        function logOut() {
+            if (!currentUser || !isLoggedIn) {
+                showNotification('No user is currently logged in', 'error');
+                return;
+            }
+            
+            addLogEntry(`User '${currentUser}' logged out`, 'logout');
+            showNotification(`${currentUser} successfully logged out!`);
+            
+                            currentUser = '';
+                currentApiKey = '';
+                currentUserId = '';
+                isLoggedIn = false;
+            
+            // Update UI
+            updateUserInfo();
+            
+            // Clear logs
+            document.getElementById('logsTableBody').innerHTML = '';
+        }
+
+        async function loadAuthTrails() {
+            if (!currentApiKey || !isLoggedIn || !currentUserId) {
+                return;
+            }
+            
+            try {
+                console.log('Loading auth trails for user:', currentUser, 'ID:', currentUserId);
+                
+                const authTrails = await makeApiRequest(`/v1/${currentUserId}/authtrails`, 'GET', null, currentApiKey);
+                console.log('Auth trails:', authTrails);
+                
+                const tbody = document.getElementById('logsTableBody');
+                tbody.innerHTML = '';
+                
+                if (authTrails && authTrails.length > 0) {
+                    authTrails.forEach((trail, index) => {
+                        console.log(`Trail ${index}:`, trail);
+                        console.log(`Trail type field:`, trail.Type, trail.type);
+                        
+                        const row = document.createElement('tr');
+                        row.className = 'log-entry';
+                        
+                        const date = new Date(trail.created_at);
+                        const dateStr = date.toLocaleDateString('en-US', {
+                            month: 'numeric',
+                            day: 'numeric',
+                            year: '2-digit'
+                        }) + ', ' + date.toLocaleTimeString('en-US', {
+                            hour: 'numeric',
+                            minute: '2-digit',
+                            hour12: true
+                        });
+                        
+                        // Try both Type and type field names
+                        const trailType = trail.trail_type
+                        const statusClass = trailType === 'signup' ? 'status-signup' : 
+                                          trailType === 'login' ? 'status-login' : 'status-logout';
+                        
+                        row.innerHTML = `
+                            <td><span class="status-indicator ${statusClass}"></span>User '${currentUser}' ${trailType}</td>
+                            <td>${dateStr}</td>
+                        `;
+                        
+                        tbody.appendChild(row);
+                    });
+                } else {
+                    console.log('No auth trails found');
+                }
+                
+            } catch (error) {
+                console.error('Failed to load auth trails:', error);
+                showNotification('Failed to load auth trails', 'error');
+            }
+        }
+
+        // Add some interactive features
+        document.getElementById('signup-name').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                signUp();
+            }
+        });
+
+        document.getElementById('signup-password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                signUp();
+            }
+        });
+
+        document.getElementById('login-name').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                logIn();
+            }
+        });
+
+        document.getElementById('login-password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                logIn();
+            }
+        });
+
+        // Add hover effects to buttons
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px) scale(1.02)';
+            });
+            
+            btn.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Add click ripple effect
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.classList.add('ripple');
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+
+        // Add CSS for ripple effect
+        const style = document.createElement('style');
+        style.textContent = `
+            .btn {
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .ripple {
+                position: absolute;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.3);
+                transform: scale(0);
+                animation: ripple 0.6s linear;
+                pointer-events: none;
+            }
+            
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
