@@ -9,9 +9,15 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest
 
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Install goose
+        run: go install github.com/pressly/goose/v3/cmd/goose@latest
 
       - name: Set up go
         uses: actions/setup-go@v5
@@ -34,6 +40,9 @@ jobs:
 
       - name: 'Build and push image'
         run: gcloud builds submit --tag us-central1-docker.pkg.dev/authtrail-468512/authtrail-ar-repo/mhndakbar/authtrail:latest .
+
+      - name: Rnu migrations
+        run: ./scripts/migrateup.sh
 
       - name: 'Deploy to cloud Run'
         run: gcloud run deploy authtrail --image us-central1-docker.pkg.dev/authtrail-468512/authtrail-ar-repo/mhndakbar/authtrail:latest --region us-central1 --allow-unauthenticated --project authtrail-468512 --max-instances=4
