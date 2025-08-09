@@ -34,3 +34,6 @@ jobs:
 
       - name: 'Build and push image'
         run: gcloud builds submit --tag us-central1-docker.pkg.dev/authtrail-468512/authtrail-ar-repo/mhndakbar/authtrail:latest .
+
+      - name: 'Deploy to cloud Run'
+        run: gcloud run deploy authtrail --image us-central1-docker.pkg.dev/authtrail-468512/authtrail-ar-repo/mhndakbar/authtrail:latest --region us-central1 --allow-unauthenticated --project authtrail-468512 --max-instances=4
